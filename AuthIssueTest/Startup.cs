@@ -72,8 +72,8 @@ namespace AuthIssueTest
 			services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 					  .AddMicrosoftIdentityWebApp(_configuration, "AzureAd");
 
+			// Uncomment the following block if the login procedure redirects you to https://localhost/signin-oidc
 #if DEBUG
-			// Uncomment this if the login procedure redirects you to https://localhost/signin-oidc
 			// services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
 			// {
 			// 	var redirectHandler = options.Events.OnRedirectToIdentityProvider;
