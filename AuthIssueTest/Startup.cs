@@ -14,6 +14,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 using System.IO;
+using Microsoft.OpenApi.Models;
 
 namespace AuthIssueTest
 {
@@ -69,10 +70,7 @@ namespace AuthIssueTest
 			});
 
 			services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-					  .AddMicrosoftIdentityWebApp(_configuration)
-					  .EnableTokenAcquisitionToCallDownstreamApi()
-					  .AddSessionTokenCaches()
-					  .AddInMemoryTokenCaches();
+					  .AddMicrosoftIdentityWebApp(_configuration, "AzureAd");
 
 #if DEBUG
 			// Uncomment this if the login procedure redirects you to https://localhost/signin-oidc
@@ -104,6 +102,11 @@ namespace AuthIssueTest
 			// -> Adds the antiforgery token to be used with angular requests.
 			if (!services.Any(s => s.ServiceType.FullName == "Microsoft.AspNetCore.Mvc.ViewFeatures.Filters.AutoValidateAntiforgeryTokenAuthorizationFilter"))
 				services.AddMvc();
+
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthIssueTest", Version = "v1" });
+			});
 
 			services.AddAntiforgery(option => { option.HeaderName = "X-XSRF-TOKEN"; })
 					 .Configure<MvcOptions>(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
@@ -162,10 +165,10 @@ namespace AuthIssueTest
 					}
 					await next();
 				})
-#if DEBUG
+				// #if DEBUG
 				.UseSwagger()
 				.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthIssueTest v1"))
-#endif
+				// #endif
 				.Use(async (ctx, next) =>
 				{
 					ctx.Response.Headers.Add("Content-Security-Policy-Report-Only", "default-src 'self';");
